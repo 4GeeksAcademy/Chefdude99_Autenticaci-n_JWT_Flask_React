@@ -10,6 +10,9 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
 
+    def __repr__(self):
+        return f'User {self.id}: {self.email}'
+
 
     def serialize(self):
         return {
