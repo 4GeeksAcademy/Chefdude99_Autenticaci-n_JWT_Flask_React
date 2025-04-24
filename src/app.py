@@ -89,6 +89,16 @@ def login():
     access_token = create_access_token(identity=user.email)
     return jsonify({'msg': 'Te logeaste', 'token': access_token}), 200
 
+#debo crear el endpoint de signup y luego empezar a trabajar en el frontend 
+@app.route('/signup', methods=['POST'])
+def signup():
+    body = request.get_json(silent=True)
+
+    
+
+   
+
+
 @app.route('/private', methods=['GET'])
 @jwt_required()
 def private():
