@@ -89,15 +89,25 @@ def login():
     access_token = create_access_token(identity=user.email)
     return jsonify({'msg': 'Te logeaste', 'token': access_token}), 200
 
-#debo crear el endpoint de signup y luego empezar a trabajar en el frontend 
 @app.route('/signup', methods=['POST'])
 def signup():
     body = request.get_json(silent=True)
-
-    
-
-   
-
+    if body is None:
+        return jsonify({'msg': 'Debes mandar informacion al body'}), 400
+    if 'email' not in body:
+        return jsonify({'msg': 'El campo email debe estar lleno'}), 400
+    if 'password' not in body:
+        return jsonify({'msg': 'El campo password debe estar lleno'}), 400
+    check_email = User.query.filter_by(email=body['email']).first()
+    if check_email:
+        return jsonify({'msg': 'Este email ya existe'}), 400
+    new_user = User()
+    new_user.email = body['email']
+    new_user.password = body['password']
+    new_user.is_active = True
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify ({'msg': 'Usuario creado !'}), 200
 
 @app.route('/private', methods=['GET'])
 @jwt_required()
