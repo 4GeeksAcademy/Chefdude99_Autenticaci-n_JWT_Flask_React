@@ -15,6 +15,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 
 # from models import Person
@@ -23,6 +24,7 @@ ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
 CORS(app)
 app.url_map.strict_slashes = False
 
@@ -85,7 +87,8 @@ def login():
     user = User.query.filter_by(email=body['email']).first()
     if user is None:
         return jsonify({'msg': 'User o Password invalido'}), 400
-    if body['password'] != user.password: 
+    check_password = bcrypt.generate_password_hash(user.password, body['password'])
+    if not check_password: 
         return jsonify({'msg': 'User o Password invalido'}), 400
     access_token = create_access_token(identity=user.email)
     return jsonify({'msg': 'Te logeaste', 'token': access_token}), 200
@@ -104,7 +107,7 @@ def signup():
         return jsonify({'msg': 'Este email ya existe'}), 400
     new_user = User()
     new_user.email = body['email']
-    new_user.password = body['password']
+    new_user.password = bcrypt.generate_password_hash(body['password']).decode('utf-8')
     new_user.is_active = True
     db.session.add(new_user)
     db.session.commit()
